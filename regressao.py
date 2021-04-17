@@ -4,18 +4,6 @@ import numpy as np
 
 
 def compute_cost(thetas, x, y):
-    """
-    Calcula o erro quadratico medio
-
-    Args:
-        theta_0 (float): intercepto da reta
-        theta_1 (float): inclinacao da reta
-        data (np.array): matriz com o conjunto de dados, x na coluna 0 e y na coluna 1
-
-    Retorna:
-        float: o erro quadratico medio
-    """
-    total_cost = 0
     sum_ = np.sum(np.square((thetas[0] + np.sum(np.dot(thetas[1:].T, x.T))) - y))
 
     total_cost = sum_ / y.shape[0]
@@ -37,17 +25,6 @@ def get_derivada(x, y, thetas, derivada_theta):
 
 
 def step_gradient(thetas_current, x, y, alpha):
-    """Calcula um passo em direção ao EQM mínimo
-
-    Args:
-        theta_0_current (float): valor atual de theta_0
-        theta_1_current (float): valor atual de theta_1
-        data (np.array): vetor com dados de treinamento (x,y)
-        alpha (float): taxa de aprendizado / tamanho do passo
-
-    Retorna:
-        tupla: (theta_0, theta_1) os novos valores de theta_0, theta_1
-    """
     thetas_updated = []
     for indice in range(0, x.shape[1]+1):
         if indice == 0:
@@ -61,18 +38,6 @@ def step_gradient(thetas_current, x, y, alpha):
 
 
 def gradient_descent(x, y, starting_thetas=None, learning_rate=0.000001, num_iterations=10):
-    """executa a descida do gradiente
-
-    Args:
-        data (np.array): dados de treinamento, x na coluna 0 e y na coluna 1
-        starting_theta_0 (float): valor inicial de theta0
-        starting_theta_1 (float): valor inicial de theta1
-        learning_rate (float): hyperparâmetro para ajustar o tamanho do passo durante a descida do gradiente
-        num_iterations (int): hyperparâmetro que decide o número de iterações que cada descida de gradiente irá executar
-
-    Retorna:
-        list : os primeiros dois parâmetros são o Theta0 e Theta1, que armazena o melhor ajuste da curva. O terceiro e quarto parâmetro, são vetores com o histórico dos valores para Theta0 e Theta1.
-    """
 
     # valores iniciais
     if starting_thetas:
