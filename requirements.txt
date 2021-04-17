@@ -1,4 +1,2 @@
 pandas
 seaborn
-scipy
-scikit-learn
