@@ -4,14 +4,31 @@ import numpy as np
 
 
 def compute_cost(thetas, x, y):
-    sum_ = np.sum(np.square((thetas[0] + np.sum(np.dot(thetas[1:].T, x.T))) - y))
+    """
+    Calcula o erro quadratico medio
 
+    Args:
+        thetas (np.array): pesos dos atributos (m, 1)
+        x (np.array): variaveis independentes da regressao (n, m)
+        y (np.array): variaveis dependentes da regressao  (1, m)
+
+    Retorna:
+        float: o erro quadratico medio
+    """
+    sum_ = np.sum(np.square((np.sum(np.dot(thetas.T, x.T))) - y))
     total_cost = sum_ / y.shape[0]
-
     return total_cost
 
 
 def get_min_max(x):
+    """ normalizacao min_max do vetor
+
+    Args:
+        Args:
+        x (np.array): array
+    Retorna:
+        np.array: array normalizado
+    """
     minimo = x.min()
     maximo = x.max()
     amplitude = maximo - minimo
@@ -20,38 +37,65 @@ def get_min_max(x):
 
 
 def get_derivada(x, y, thetas, derivada_theta):
-    derivada_funcao_erro = thetas[0] + np.dot(thetas[1:].T, x.T) - y
+    """faz o calculo do gradiente
+
+    Args:
+        Args:
+        thetas (np.array): pesos dos atributos (m, 1)
+        x (np.array): variaveis independentes da regressao (n, m)
+        y (np.array): variaveis dependente da regressao  (1, m)
+
+    Retorna:
+        float: o gradiente
+    """
+    derivada_funcao_erro = np.dot(thetas.T, x.T) - y
     return (2 / x.shape[0]) * np.sum(derivada_funcao_erro * derivada_theta)
 
 
 def step_gradient(thetas_current, x, y, alpha):
+    """Calcula um passo em direção ao EQM mínimo
+
+    Args:
+        thetas (np.array): pesos dos atributos (m, 1)
+        x (np.array): variaveis independentes da regressao (n, m)
+        y (np.array): variaveis independente da regressao  (1, m)
+    Retorna:
+        np.array:  os novos valores de theta
+    """
+
     thetas_updated = []
-    for indice in range(0, x.shape[1]+1):
-        if indice == 0:
-            derivada_theta = 1
-        else:
-            derivada_theta = x[:, indice-1]
-        derivada = get_derivada(x, y, thetas_current, derivada_theta)
+    for indice in range(0, x.shape[1]):
+        derivada = get_derivada(x, y, thetas_current, x[:, indice])
         theta_updated = thetas_current[indice] - (alpha * derivada)
         thetas_updated.append(theta_updated)
     return np.array(thetas_updated).reshape(len(thetas_updated), 1)
 
 
 def gradient_descent(x, y, starting_thetas=None, learning_rate=0.000001, num_iterations=10):
+    """executa a descida do gradiente
 
+    Args:
+        x (np.array): variaveis independentes da regressao (n, m)
+        y (np.array): variaveis independente da regressao  (1, m)
+        starting_theta (np.array): pesos dos atributos (m, 1)
+        learning_rate (float): hyperparâmetro para ajustar o tamanho do passo durante a descida do gradiente
+        num_iterations (int): hyperparâmetro que decide o número de iterações que cada descida de gradiente irá executar
+
+    Retorna:
+        list : o primeiros parâmetro eh um np.array dos melhores thetas
+               O segundo eh um np.array o historico de custo
+               O terceiro eh uma matriz com o histórico dos thetas
+    """
     # valores iniciais
     if starting_thetas:
-        thetas = np.array(starting_thetas).reshape(x.shape[1] + 1, 1)
+        thetas = np.array(starting_thetas).reshape(x.shape[1], 1)
     else:
-        thetas = np.zeros(x.shape[1] + 1).reshape(x.shape[1] + 1, 1)
+        thetas = np.zeros(x.shape[1]).reshape(x.shape[1], 1)
 
-    # variável para armazenar o custo ao final de cada step_gradient
     cost_graph = []
 
-    # vetores para armazenar os valores de Theta0 e Theta1 apos cada iteração de step_gradient (pred = Theta1*x + Theta0)
     thetas_progress = []
 
-    # Para cada iteração, obtem novos (Theta0,Theta1) e calcula o custo (EQM)
     num_iterations = num_iterations
     for i in range(num_iterations):
         cost = compute_cost(thetas, x, y)
@@ -64,11 +108,20 @@ def gradient_descent(x, y, starting_thetas=None, learning_rate=0.000001, num_ite
 
 
 def get_data(file, atributos):
+    """faz a leitura do csv e transformacoes necessarias nos dados
+
+    Args:
+        file (string): caminho do arquivo csv onde estao os dados
+        atributos (list string): lista das variaveis indepedentes utilizadas
+    Retorna:
+        tupla (np.array): matriz da variaveis independentes e uma lista das variaveis indepedentes.
+    """
     data = pd.read_csv(file)[atributos]
     x = data.iloc[:, :-1].astype("float").values
+    x = np.append(x, np.ones((x.shape[0], 1)), axis=1)
     y = data.iloc[:, -1].astype("float").values
 
-    for i in range(data.shape[1] - 1):
+    for i in range(x.shape[1] - 1):
         x[:, i] = get_min_max(x[:, i])
     y = get_min_max(y)
     return x, y
@@ -84,7 +137,7 @@ if __name__ == "__main__":
     opcao_atributo = int(sys.argv[3])
     atributo = atributos[opcao_atributo]
     X, Y = get_data(nome_arquivo, atributo)
-    #starting_thetas = (np.random.randn(X.shape[1]+1) * np.sqrt(2/X.shape[1]+1)).tolist()
+    #starting_thetas = (np.random.randn(X.shape[1]) * np.sqrt(2/X.shape[1])).tolist()
     starting_thetas = None
     thetas, cost_graph, thetas_progres = gradient_descent(X, Y, starting_thetas=starting_thetas,
                                                           learning_rate=0.000002,
