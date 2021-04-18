@@ -2,7 +2,9 @@
 
 ## Integrantes:
 
- - Rafael Junior Rbeiro, 265830
+ - Giulia Giozza, 00183153, Turma A
+ - Rafael Ribeiro, 00265830, Turma A
+ - Rodrigo Lusa, 00216668, Turma B
 
 ##  Dependências
 Para executar o jupyter notebook dentro de um container:
