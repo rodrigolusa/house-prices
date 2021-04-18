@@ -8,14 +8,14 @@ def compute_cost(thetas, x, y):
     Calcula o erro quadratico medio
 
     Args:
-        thetas (np.array): pesos dos atributos (m, 1)
+        thetas (np.array): pesos dos atributos (1, m)
         x (np.array): variaveis independentes da regressao (n, m)
         y (np.array): variaveis dependentes da regressao  (1, m)
 
     Retorna:
         float: o erro quadratico medio
     """
-    sum_ = np.sum(np.square((np.sum(np.dot(thetas.T, x.T))) - y))
+    sum_ = np.sum(np.square((np.sum(np.dot(thetas, x.T))) - y))
     total_cost = sum_ / y.shape[0]
     return total_cost
 
@@ -36,39 +36,20 @@ def get_min_max(x):
     return x
 
 
-def get_derivada(x, y, thetas, derivada_theta):
-    """faz o calculo do gradiente
-
-    Args:
-        Args:
-        thetas (np.array): pesos dos atributos (m, 1)
-        x (np.array): variaveis independentes da regressao (n, m)
-        y (np.array): variaveis dependente da regressao  (1, m)
-
-    Retorna:
-        float: o gradiente
-    """
-    derivada_funcao_erro = np.dot(thetas.T, x.T) - y
-    return (2 / x.shape[0]) * np.sum(derivada_funcao_erro * derivada_theta)
-
-
 def step_gradient(thetas_current, x, y, alpha):
     """Calcula um passo em direção ao EQM mínimo
 
     Args:
-        thetas (np.array): pesos dos atributos (m, 1)
+        thetas (np.array): pesos dos atributos (1, m)
         x (np.array): variaveis independentes da regressao (n, m)
         y (np.array): variaveis independente da regressao  (1, m)
     Retorna:
         np.array:  os novos valores de theta
     """
-
-    thetas_updated = []
-    for indice in range(0, x.shape[1]):
-        derivada = get_derivada(x, y, thetas_current, x[:, indice])
-        theta_updated = thetas_current[indice] - (alpha * derivada)
-        thetas_updated.append(theta_updated)
-    return np.array(thetas_updated).reshape(len(thetas_updated), 1)
+    derivada_funcao_erro = (np.dot(thetas_current, x.T) - y).reshape(1, x.shape[0])
+    gradientes = (2 / x.shape[0]) * np.dot(derivada_funcao_erro, x)
+    thetas_updated = thetas_current - (alpha * gradientes)
+    return thetas_updated
 
 
 def gradient_descent(x, y, starting_thetas=None, learning_rate=0.000001, num_iterations=10):
@@ -88,9 +69,9 @@ def gradient_descent(x, y, starting_thetas=None, learning_rate=0.000001, num_ite
     """
     # valores iniciais
     if starting_thetas:
-        thetas = np.array(starting_thetas).reshape(x.shape[1], 1)
+        thetas = np.array(starting_thetas).reshape(1, x.shape[1])
     else:
-        thetas = np.zeros(x.shape[1]).reshape(x.shape[1], 1)
+        thetas = np.zeros(x.shape[1]).reshape(1, x.shape[1])
 
     cost_graph = []
 
@@ -140,12 +121,12 @@ if __name__ == "__main__":
     #starting_thetas = (np.random.randn(X.shape[1]) * np.sqrt(2/X.shape[1])).tolist()
     starting_thetas = None
     thetas, cost_graph, thetas_progres = gradient_descent(X, Y, starting_thetas=starting_thetas,
-                                                          learning_rate=0.000002,
+                                                          learning_rate=0.000001,
                                                           num_iterations=epocas)
 
     # #Imprimir parâmetros otimizados
-    for index, theta in enumerate(thetas):
-        print(f'theta_{index}: {theta[0]}')
+    for index, theta in enumerate(thetas[0]):
+        print(f'theta_{index}: {theta}')
 
     # #Imprimir erro com os parâmetros otimizados
     print(f'Erro quadratico medio: {compute_cost(thetas, X, Y)}')
